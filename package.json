@@ -25,7 +25,7 @@
     },
     "publish": {
       "provider": "github",
-      "owner": "tu-usuario",
+      "owner": "MisaelIvanYamJimenez",
       "repo": "restify-print"
     }
   },
