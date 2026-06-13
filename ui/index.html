@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restify Print</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      padding: 24px;
+      user-select: none;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      font-size: 22px;
+      color: #ff6b35;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 13px;
+      color: #888;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #16213e;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .status-dot.connected { background: #4caf50; }
+    .status-dot.waiting { background: #ff9800; }
+    .status-dot.error { background: #f44336; }
+
+    .section {
+      background: #16213e;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .section h2 {
+      font-size: 14px;
+      color: #ff6b35;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .token-input-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .token-input {
+      flex: 1;
+      background: #0f3460;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: #e0e0e0;
+      font-family: 'Consolas', monospace;
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+
+    .token-input:focus {
+      outline: none;
+      border-color: #ff6b35;
+    }
+
+    .token-input::placeholder {
+      color: #555;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-primary {
+      background: #ff6b35;
+      color: #fff;
+    }
+
+    .btn-danger {
+      background: none;
+      border: 1px solid #f44336;
+      color: #f44336;
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .token-hint {
+      font-size: 11px;
+      color: #888;
+      margin-top: 8px;
+    }
+
+    .token-saved {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #0f3460;
+      border: 1px solid #4caf50;
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+
+    .token-saved-text {
+      font-family: 'Consolas', monospace;
+      font-size: 13px;
+      color: #4caf50;
+      letter-spacing: 1px;
+    }
+
+    .printer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #1a1a2e;
+    }
+
+    .printer-row:last-child { border-bottom: none; }
+
+    .printer-label {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .printer-value {
+      font-size: 13px;
+      color: #888;
+    }
+
+    .printer-value.assigned {
+      color: #4caf50;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #555;
+      margin-top: 16px;
+    }
+
+    .msg {
+      font-size: 12px;
+      text-align: center;
+      margin-top: 8px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .msg.show { opacity: 1; }
+    .msg.success { color: #4caf50; }
+    .msg.error { color: #f44336; }
+
+    .config-hint {
+      font-size: 11px;
+      color: #666;
+      text-align: center;
+      margin-top: 12px;
+      font-style: italic;
+    }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Restify Print</h1>
+    <p>Puente de impresion para tu restaurante</p>
+  </div>
+
+  <div class="status">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">Iniciando...</span>
+  </div>
+
+  <!-- Vista: sin token configurado -->
+  <div class="section" id="tokenSetup">
+    <h2>Conectar con tu sucursal</h2>
+    <div class="token-input-group">
+      <input type="text" class="token-input" id="tokenInput"
+        placeholder="Pega aqui el token de tu sucursal" />
+      <button class="btn btn-primary" id="btnSave">Conectar</button>
+    </div>
+    <div class="msg" id="setupMsg"></div>
+    <p class="token-hint">Encuentra el token en tu pagina web: Configuracion &gt; Impresoras</p>
+  </div>
+
+  <!-- Vista: token ya configurado -->
+  <div class="section hidden" id="tokenConnected">
+    <h2>Sucursal conectada</h2>
+    <div class="token-saved">
+      <span class="token-saved-text" id="tokenDisplay"></span>
+      <button class="btn btn-danger" id="btnDisconnect">Desconectar</button>
+    </div>
+  </div>
+
+  <div class="section" id="printersSection">
+    <h2>Impresoras asignadas</h2>
+
+    <div class="printer-row">
+      <span class="printer-label">Caja</span>
+      <span class="printer-value" id="cashierValue">Sin asignar</span>
+    </div>
+
+    <div class="printer-row">
+      <span class="printer-label">Cocina</span>
+      <span class="printer-value" id="kitchenValue">Sin asignar</span>
+    </div>
+
+    <p class="config-hint">Las impresoras se configuran desde tu pagina web en Restify</p>
+  </div>
+
+  <div class="footer">
+    Restify Print v1.0.0 — La app se minimiza a la bandeja del sistema al cerrar
+  </div>
+
+  <script>
+    const tokenInput = document.getElementById('tokenInput');
+    const btnSave = document.getElementById('btnSave');
+    const btnDisconnect = document.getElementById('btnDisconnect');
+    const setupMsg = document.getElementById('setupMsg');
+    const tokenSetup = document.getElementById('tokenSetup');
+    const tokenConnected = document.getElementById('tokenConnected');
+    const tokenDisplay = document.getElementById('tokenDisplay');
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const cashierValue = document.getElementById('cashierValue');
+    const kitchenValue = document.getElementById('kitchenValue');
+
+    function showMsg(el, text, type) {
+      el.textContent = text;
+      el.className = `msg show ${type}`;
+      setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    function showSetupView() {
+      tokenSetup.classList.remove('hidden');
+      tokenConnected.classList.add('hidden');
+      statusDot.className = 'status-dot waiting';
+      statusText.textContent = 'Esperando token de sucursal';
+    }
+
+    function showConnectedView(token) {
+      tokenSetup.classList.add('hidden');
+      tokenConnected.classList.remove('hidden');
+      tokenDisplay.textContent = token.substring(0, 12) + '...';
+      statusDot.className = 'status-dot connected';
+      statusText.textContent = 'Conectado - Esperando peticiones';
+    }
+
+    async function loadPrinters() {
+      const saved = await window.restifyPrint.getSavedPrinters();
+
+      if (saved.cashier) {
+        cashierValue.textContent = saved.cashier;
+        cashierValue.classList.add('assigned');
+      } else {
+        cashierValue.textContent = 'Sin asignar';
+        cashierValue.classList.remove('assigned');
+      }
+
+      if (saved.kitchen) {
+        kitchenValue.textContent = saved.kitchen;
+        kitchenValue.classList.add('assigned');
+      } else {
+        kitchenValue.textContent = 'Sin asignar';
+        kitchenValue.classList.remove('assigned');
+      }
+    }
+
+    async function init() {
+      const token = await window.restifyPrint.getToken();
+
+      if (token) {
+        showConnectedView(token);
+      } else {
+        showSetupView();
+      }
+
+      await loadPrinters();
+      setInterval(loadPrinters, 10000);
+    }
+
+    btnSave.addEventListener('click', async () => {
+      const token = tokenInput.value.trim();
+
+      if (!token) {
+        showMsg(setupMsg, 'Ingresa un token valido', 'error');
+        return;
+      }
+
+      if (token.length < 10) {
+        showMsg(setupMsg, 'El token es muy corto', 'error');
+        return;
+      }
+
+      await window.restifyPrint.setToken(token);
+      showConnectedView(token);
+      tokenInput.value = '';
+    });
+
+    tokenInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') btnSave.click();
+    });
+
+    btnDisconnect.addEventListener('click', async () => {
+      await window.restifyPrint.clearToken();
+      showSetupView();
+    });
+
+    init();
+  </script>
+</body>
+</html>

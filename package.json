@@ -1,0 +1,42 @@
+{
+  "name": "restify-print",
+  "version": "1.0.0",
+  "main": "main.js",
+  "description": "Puente entre Restify web y las impresoras termicas del restaurante",
+  "author": "Restify",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win",
+    "pack": "electron-builder --dir"
+  },
+  "build": {
+    "appId": "com.restify.print",
+    "productName": "Restify Print",
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "runAfterFinish": true
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "tu-usuario",
+      "repo": "restify-print"
+    }
+  },
+  "devDependencies": {
+    "electron": "^42.3.3",
+    "electron-builder": "^26.15.2"
+  },
+  "dependencies": {
+    "auto-launch": "^5.0.6",
+    "electron-store": "^11.0.2",
+    "node-thermal-printer": "^4.6.0",
+    "ws": "^8.21.0"
+  }
+}
