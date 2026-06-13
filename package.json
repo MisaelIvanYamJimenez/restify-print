@@ -1,6 +1,6 @@
 {
   "name": "restify-print",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "main": "main.js",
   "description": "Puente entre Restify web y las impresoras termicas del restaurante",
   "author": "Restify",
@@ -31,7 +31,8 @@
   },
   "devDependencies": {
     "electron": "^42.3.3",
-    "electron-builder": "^26.15.2"
+    "electron-builder": "^26.15.2",
+    "png-to-ico": "^3.0.1"
   },
   "dependencies": {
     "auto-launch": "^5.0.6",
