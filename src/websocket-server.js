@@ -84,12 +84,15 @@ async function handleMessage(message, origin) {
     }
 
     case 'assign_printer': {
-      const { printerType, printerName } = message;
+      const { printerType, printerName, paperSize } = message;
       if (!['cashier', 'kitchen'].includes(printerType)) {
         throw new Error('Tipo de impresora invalido. Usa: cashier o kitchen');
       }
-      savePrinterConfig(printerType, printerName);
-      return { success: true, message: `Impresora ${printerType} asignada: ${printerName}` };
+      if (paperSize && ![80, 58].includes(paperSize)) {
+        throw new Error('Tamano de papel invalido. Usa: 80 o 58');
+      }
+      savePrinterConfig(printerType, printerName, paperSize || 80);
+      return { success: true, message: `Impresora ${printerType} asignada: ${printerName} (${paperSize || 80}mm)` };
     }
 
     case 'print': {

@@ -1,6 +1,6 @@
 {
   "name": "restify-print",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "main.js",
   "description": "Puente entre Restify web y las impresoras termicas del restaurante",
   "author": "Restify",

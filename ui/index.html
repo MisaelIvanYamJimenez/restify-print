@@ -284,16 +284,16 @@
     async function loadPrinters() {
       const saved = await window.restifyPrint.getSavedPrinters();
 
-      if (saved.cashier) {
-        cashierValue.textContent = saved.cashier;
+      if (saved.cashier && saved.cashier.name) {
+        cashierValue.textContent = `${saved.cashier.name} (${saved.cashier.paperSize || 80}mm)`;
         cashierValue.classList.add('assigned');
       } else {
         cashierValue.textContent = 'Sin asignar';
         cashierValue.classList.remove('assigned');
       }
 
-      if (saved.kitchen) {
-        kitchenValue.textContent = saved.kitchen;
+      if (saved.kitchen && saved.kitchen.name) {
+        kitchenValue.textContent = `${saved.kitchen.name} (${saved.kitchen.paperSize || 80}mm)`;
         kitchenValue.classList.add('assigned');
       } else {
         kitchenValue.textContent = 'Sin asignar';

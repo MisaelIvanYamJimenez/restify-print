@@ -26,12 +26,14 @@ const COMMANDS = {
   LINE_FEED: Buffer.from([0x0a]),
 };
 
-const LINE_WIDTH = 48;
+const PAPER_WIDTHS = { 80: 48, 58: 32 };
+const DEFAULT_LINE_WIDTH = 48;
 
 // Generador de bytes ESC/POS
 class TicketBuilder {
-  constructor() {
+  constructor(lineWidth = DEFAULT_LINE_WIDTH) {
     this.buffer = [];
+    this.lineWidth = lineWidth;
   }
 
   raw(buf) {
@@ -60,10 +62,11 @@ class TicketBuilder {
   textDouble() { return this.raw(COMMANDS.TEXT_DOUBLE); }
 
   drawLine(char = '-') {
-    return this.println(char.repeat(LINE_WIDTH));
+    return this.println(char.repeat(this.lineWidth));
   }
 
-  tableRow(left, right, width = LINE_WIDTH) {
+  tableRow(left, right, width) {
+    width = width || this.lineWidth;
     const space = width - left.length - right.length;
     const padding = space > 0 ? ' '.repeat(space) : ' ';
     return this.println(`${left}${padding}${right}`);
@@ -72,7 +75,7 @@ class TicketBuilder {
   table3Col(col1, col2, col3, w1 = 6, w3 = 12) {
     const c1 = col1.toString().padEnd(w1);
     const c3 = col3.toString().padStart(w3);
-    const w2 = LINE_WIDTH - w1 - w3;
+    const w2 = this.lineWidth - w1 - w3;
     const c2 = col2.toString().substring(0, w2).padEnd(w2);
     return this.println(`${c1}${c2}${c3}`);
   }
@@ -163,17 +166,32 @@ Write-Output \\$r
 }
 
 function getSavedPrinters() {
-  return store.get('printers', { cashier: null, kitchen: null });
+  const printers = store.get('printers', { cashier: null, kitchen: null });
+  // Migrar formato antiguo (string) al nuevo (objeto con name y paperSize)
+  for (const type of ['cashier', 'kitchen']) {
+    if (typeof printers[type] === 'string') {
+      printers[type] = { name: printers[type], paperSize: 80 };
+      store.set('printers', printers);
+    }
+  }
+  return printers;
 }
 
-function savePrinterConfig(type, printerName) {
+function savePrinterConfig(type, printerName, paperSize = 80) {
   const printers = getSavedPrinters();
-  printers[type] = printerName;
+  printers[type] = { name: printerName, paperSize };
   store.set('printers', printers);
 }
 
 function clearPrinterConfig() {
   store.set('printers', { cashier: null, kitchen: null });
+}
+
+function getLineWidth(printerType) {
+  const printers = getSavedPrinters();
+  const printer = printers[printerType];
+  if (!printer) return DEFAULT_LINE_WIDTH;
+  return PAPER_WIDTHS[printer.paperSize] || DEFAULT_LINE_WIDTH;
 }
 
 async function getSystemPrinters() {
@@ -205,13 +223,15 @@ async function getSystemPrinters() {
 
 async function printTicket(printerType, ticketData, openDrawer = false) {
   const printers = getSavedPrinters();
-  const printerName = printers[printerType];
+  const printer = printers[printerType];
 
-  if (!printerName) {
+  if (!printer || !printer.name) {
     throw new Error(`No hay impresora asignada para: ${printerType}`);
   }
 
-  const t = new TicketBuilder();
+  const printerName = printer.name;
+  const lineWidth = getLineWidth(printerType);
+  const t = new TicketBuilder(lineWidth);
 
   // Encabezado
   t.alignCenter().bold(true).textDouble();
@@ -356,13 +376,15 @@ function buildPrecuenta(t, data) {
 
 async function printTest(printerType, businessName, branchName) {
   const printers = getSavedPrinters();
-  const printerName = printers[printerType];
+  const printer = printers[printerType];
 
-  if (!printerName) {
+  if (!printer || !printer.name) {
     throw new Error(`No hay impresora asignada para: ${printerType}`);
   }
 
-  const t = new TicketBuilder();
+  const printerName = printer.name;
+  const lineWidth = getLineWidth(printerType);
+  const t = new TicketBuilder(lineWidth);
 
   t.alignCenter();
   t.drawLine();
@@ -406,7 +428,7 @@ async function printTest(printerType, businessName, branchName) {
 
 async function openCashDrawer() {
   const printers = getSavedPrinters();
-  const printerName = printers.cashier;
+  const printerName = printers.cashier?.name;
 
   if (!printerName) {
     throw new Error('No hay impresora de caja asignada');

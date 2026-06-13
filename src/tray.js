@@ -46,11 +46,11 @@ function updateMenu(mainWindow, status = 'Conectado') {
     { label: tokenLabel, enabled: false },
     { type: 'separator' },
     {
-      label: `Caja: ${printers.cashier || 'No asignada'}`,
+      label: `Caja: ${printers.cashier?.name ? `${printers.cashier.name} (${printers.cashier.paperSize}mm)` : 'No asignada'}`,
       enabled: false,
     },
     {
-      label: `Cocina: ${printers.kitchen || 'No asignada'}`,
+      label: `Cocina: ${printers.kitchen?.name ? `${printers.kitchen.name} (${printers.kitchen.paperSize}mm)` : 'No asignada'}`,
       enabled: false,
     },
     { type: 'separator' },
