@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const { autoUpdater } = require('electron-updater');
 const AutoLaunch = require('auto-launch');
 const wsServer = require('./src/websocket-server');
 const tray = require('./src/tray');
@@ -54,6 +55,10 @@ app.whenReady().then(async () => {
   } catch (error) {
     console.error('Error al configurar auto-launch:', error);
   }
+
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
+  autoUpdater.checkForUpdatesAndNotify();
 });
 
 app.on('window-all-closed', (event) => {
