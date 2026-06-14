@@ -57,8 +57,7 @@ function createWindow(hidden = false) {
 }
 
 app.whenReady().then(async () => {
-  const hidden = process.argv.includes('--hidden');
-  createWindow(hidden);
+  createWindow(app.isPackaged);
 
   tray.create(mainWindow);
 
