@@ -9,8 +9,8 @@ const { getSavedPrinters, clearPrinterConfig } = require('./src/printer');
 
 let mainWindow = null;
 
-if (!app.isPackaged && process.argv.length <= 1) {
-  app.quit();
+if (!app.isPackaged && !process.env.RESTIFY_DEV) {
+  process.exit(0);
 }
 
 const autoLauncher = new AutoLaunch({

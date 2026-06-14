@@ -1,12 +1,12 @@
 {
   "name": "restify-print",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "main": "main.js",
   "description": "Puente entre Restify web y las impresoras termicas del restaurante",
   "author": "Restify",
   "license": "MIT",
   "scripts": {
-    "start": "electron .",
+    "start": "set RESTIFY_DEV=1&& electron .",
     "build": "electron-builder --win",
     "pack": "electron-builder --dir"
   },
