@@ -93,10 +93,11 @@ La app se actualiza automaticamente via GitHub Releases. Sigue estos pasos en or
    git merge dev
    git push origin main
    ```
-6. **Crear el Release en GitHub** con el .exe:
+6. **Crear el Release en GitHub** con el .exe, blockmap y latest.yml:
    ```bash
-   gh release create v1.1.0 "dist/Restify Print Setup 1.1.0.exe" "dist/Restify Print Setup 1.1.0.exe.blockmap" --title "Restify Print v1.1.0" --notes "Descripcion de los cambios"
+   gh release create v1.1.0 "dist/Restify Print Setup 1.1.0.exe" "dist/Restify Print Setup 1.1.0.exe.blockmap" "dist/latest.yml" --title "Restify Print v1.1.0" --notes "Descripcion de los cambios"
    ```
+   > **IMPORTANTE:** Sin `latest.yml` la auto-actualizacion no funciona.
 7. **Volver a dev** para seguir trabajando:
    ```bash
    git checkout dev

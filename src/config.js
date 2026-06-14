@@ -2,8 +2,7 @@ const ALLOWED_ORIGINS = [
   'http://localhost:5173',
   'http://localhost:3000',
   'http://localhost:4173',
-  // Cuando tengas dominio, agrega aqui:
-  // 'https://tudominio.com',
+  'https://app.restifymenu.com',
 ];
 
 const WS_PORT = 9632;
