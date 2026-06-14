@@ -13,6 +13,18 @@ if (!app.isPackaged && !process.env.RESTIFY_DEV) {
   process.exit(0);
 }
 
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      mainWindow.show();
+      mainWindow.focus();
+    }
+  });
+}
+
 const autoLauncher = new AutoLaunch({
   name: 'Restify Print',
   path: app.getPath('exe'),
@@ -45,8 +57,8 @@ function createWindow(hidden = false) {
 }
 
 app.whenReady().then(async () => {
-  const showWindow = !app.isPackaged && process.env.RESTIFY_DEV;
-  createWindow(!showWindow);
+  const hidden = process.argv.includes('--hidden');
+  createWindow(hidden);
 
   tray.create(mainWindow);
 
@@ -68,7 +80,10 @@ app.whenReady().then(async () => {
   autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = true;
   autoUpdater.checkForUpdates();
-  setInterval(() => autoUpdater.checkForUpdates(), 2 * 60 * 60 * 1000);
+
+  mainWindow.on('show', () => {
+    autoUpdater.checkForUpdates();
+  });
 
   autoUpdater.on('update-available', (info) => {
     if (mainWindow) {
