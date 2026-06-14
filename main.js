@@ -45,8 +45,8 @@ function createWindow(hidden = false) {
 }
 
 app.whenReady().then(async () => {
-  const launchedAtStartup = process.argv.includes('--hidden') || app.getLoginItemSettings().wasOpenedAtLogin;
-  createWindow(launchedAtStartup);
+  const showWindow = !app.isPackaged && process.env.RESTIFY_DEV;
+  createWindow(!showWindow);
 
   tray.create(mainWindow);
 
