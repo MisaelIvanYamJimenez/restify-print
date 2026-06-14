@@ -9,6 +9,10 @@ const { getSavedPrinters, clearPrinterConfig } = require('./src/printer');
 
 let mainWindow = null;
 
+if (!app.isPackaged && process.argv.length <= 1) {
+  app.quit();
+}
+
 const autoLauncher = new AutoLaunch({
   name: 'Restify Print',
   path: app.getPath('exe'),
