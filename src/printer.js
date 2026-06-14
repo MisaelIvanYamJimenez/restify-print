@@ -284,6 +284,12 @@ function buildComanda(t, data) {
 
   for (const item of data.items || []) {
     t.println(`${String(item.qty).padEnd(6)}${item.name}`);
+    if (item.modifiers && item.modifiers.length > 0) {
+      for (const mod of item.modifiers) {
+        const qtyStr = mod.qty > 1 ? ` x${mod.qty}` : '';
+        t.println(`      + ${mod.group}: ${mod.name}${qtyStr}`);
+      }
+    }
     if (item.notes) {
       t.println(`      >> ${item.notes}`);
     }
@@ -319,6 +325,12 @@ function buildReceipt(t, data) {
   for (const item of data.items || []) {
     const total = (item.qty * item.price).toFixed(2);
     t.table3Col(item.qty, item.name, `$${total}`);
+    if (item.modifiers && item.modifiers.length > 0) {
+      for (const mod of item.modifiers) {
+        const qtyStr = mod.qty > 1 ? ` x${mod.qty}` : '';
+        t.println(`      + ${mod.group}: ${mod.name}${qtyStr}`);
+      }
+    }
   }
 
   t.drawLine();
@@ -366,6 +378,12 @@ function buildPrecuenta(t, data) {
   for (const item of data.items || []) {
     const total = (item.qty * item.price).toFixed(2);
     t.table3Col(item.qty, item.name, `$${total}`);
+    if (item.modifiers && item.modifiers.length > 0) {
+      for (const mod of item.modifiers) {
+        const qtyStr = mod.qty > 1 ? ` x${mod.qty}` : '';
+        t.println(`      + ${mod.group}: ${mod.name}${qtyStr}`);
+      }
+    }
   }
 
   t.drawLine();
