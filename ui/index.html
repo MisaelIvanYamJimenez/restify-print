@@ -193,12 +193,64 @@
     }
 
     .hidden { display: none; }
+
+    .update-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: #1b3a2d;
+      border: 1px solid #4caf50;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .update-banner.show { display: flex; }
+
+    .update-banner .update-text {
+      font-size: 13px;
+      color: #4caf50;
+    }
+
+    .update-banner .update-text small {
+      display: block;
+      color: #888;
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    .btn-update {
+      background: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-update:hover { opacity: 0.85; }
+
+    .btn-update:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
   <div class="header">
     <h1>Restify Print</h1>
     <p>Puente de impresion para tu restaurante</p>
+  </div>
+
+  <div class="update-banner" id="updateBanner">
+    <div class="update-text">
+      <span id="updateText">Nueva version disponible</span>
+      <small id="updateDetail">Descargando...</small>
+    </div>
+    <button class="btn-update" id="btnUpdate">Descargar</button>
   </div>
 
   <div class="status">
@@ -240,11 +292,11 @@
       <span class="printer-value" id="kitchenValue">Sin asignar</span>
     </div>
 
-    <p class="config-hint">Las impresoras se configuran desde tu pagina web en Restify</p>
+    <p class="config-hint">Las impresoras se configuran desde app.restifymenu.com</p>
   </div>
 
   <div class="footer">
-    Restify Print v1.0.0 — La app se minimiza a la bandeja del sistema al cerrar
+    Restify Print <span id="appVersion">v...</span> — La app se minimiza a la bandeja del sistema al cerrar
   </div>
 
   <script>
@@ -302,6 +354,9 @@
     }
 
     async function init() {
+      const version = await window.restifyPrint.getVersion();
+      document.getElementById('appVersion').textContent = `v${version}`;
+
       const token = await window.restifyPrint.getToken();
 
       if (token) {
@@ -339,6 +394,35 @@
     btnDisconnect.addEventListener('click', async () => {
       await window.restifyPrint.clearToken();
       showSetupView();
+    });
+
+    let updateReady = false;
+
+    window.restifyPrint.onUpdateAvailable((version) => {
+      document.getElementById('updateBanner').classList.add('show');
+      document.getElementById('updateText').textContent = `Version ${version} disponible`;
+      document.getElementById('updateDetail').textContent = 'Hay una nueva version lista para descargar';
+    });
+
+    window.restifyPrint.onUpdateDownloaded((version) => {
+      updateReady = true;
+      document.getElementById('updateText').textContent = `Version ${version} lista`;
+      document.getElementById('updateDetail').textContent = 'Reinicia para actualizar';
+      const btn = document.getElementById('btnUpdate');
+      btn.textContent = 'Actualizar';
+      btn.disabled = false;
+    });
+
+    document.getElementById('btnUpdate').addEventListener('click', () => {
+      if (updateReady) {
+        window.restifyPrint.installUpdate();
+      } else {
+        const btn = document.getElementById('btnUpdate');
+        btn.textContent = 'Descargando...';
+        btn.disabled = true;
+        document.getElementById('updateDetail').textContent = 'Descargando actualizacion...';
+        window.restifyPrint.downloadUpdate();
+      }
     });
 
     init();

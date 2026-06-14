@@ -59,9 +59,21 @@ app.whenReady().then(async () => {
     console.error('Error al configurar auto-launch:', error);
   }
 
-  autoUpdater.autoDownload = true;
+  autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = true;
-  autoUpdater.checkForUpdatesAndNotify();
+  autoUpdater.checkForUpdates();
+
+  autoUpdater.on('update-available', (info) => {
+    if (mainWindow) {
+      mainWindow.webContents.send('update-available', info.version);
+    }
+  });
+
+  autoUpdater.on('update-downloaded', (info) => {
+    if (mainWindow) {
+      mainWindow.webContents.send('update-downloaded', info.version);
+    }
+  });
 });
 
 app.on('window-all-closed', (event) => {
@@ -94,4 +106,16 @@ ipcMain.handle('clear-token', () => {
 
 ipcMain.handle('get-saved-printers', () => {
   return getSavedPrinters();
+});
+
+ipcMain.handle('get-version', () => {
+  return app.getVersion();
+});
+
+ipcMain.handle('download-update', () => {
+  autoUpdater.downloadUpdate();
+});
+
+ipcMain.handle('install-update', () => {
+  autoUpdater.quitAndInstall();
 });

@@ -67,7 +67,8 @@ async function handleMessage(message, origin) {
 
   // Acciones que no requieren token (para configuracion inicial)
   if (action === 'ping') {
-    return { status: 'ok', app: 'restify-print', version: '1.0.0' };
+    const { app } = require('electron');
+    return { status: 'ok', app: 'restify-print', version: app.getVersion() };
   }
 
   // Validar token para todo lo demas
