@@ -50,13 +50,15 @@ app.whenReady().then(async () => {
     tray.updateMenu(mainWindow, status === 'connected' ? 'Conectado' : 'Error');
   });
 
-  try {
-    const isEnabled = await autoLauncher.isEnabled();
-    if (!isEnabled) {
-      await autoLauncher.enable();
+  if (app.isPackaged) {
+    try {
+      const isEnabled = await autoLauncher.isEnabled();
+      if (!isEnabled) {
+        await autoLauncher.enable();
+      }
+    } catch (error) {
+      console.error('Error al configurar auto-launch:', error);
     }
-  } catch (error) {
-    console.error('Error al configurar auto-launch:', error);
   }
 
   autoUpdater.autoDownload = false;
