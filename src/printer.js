@@ -272,6 +272,9 @@ function buildComanda(t, data) {
   t.bold(false).textNormal();
 
   t.alignLeft();
+  if (data.ticketNumber) {
+    t.println(`Orden #: ${data.ticketNumber}`);
+  }
   t.println(`Mesa: ${data.table || '-'}`);
   t.println(`Mesero: ${data.waiter || '-'}`);
   t.println(`Fecha: ${new Date().toLocaleString('es-MX')}`);
