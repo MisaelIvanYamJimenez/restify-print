@@ -12,13 +12,15 @@ let mainWindow = null;
 const autoLauncher = new AutoLaunch({
   name: 'Restify Print',
   path: app.getPath('exe'),
+  args: ['--hidden'],
 });
 
-function createWindow() {
+function createWindow(hidden = false) {
   mainWindow = new BrowserWindow({
     width: 500,
     height: 600,
     resizable: false,
+    show: !hidden,
     icon: path.join(__dirname, 'assets', 'icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -39,7 +41,8 @@ function createWindow() {
 }
 
 app.whenReady().then(async () => {
-  createWindow();
+  const launchedAtStartup = process.argv.includes('--hidden') || app.getLoginItemSettings().wasOpenedAtLogin;
+  createWindow(launchedAtStartup);
 
   tray.create(mainWindow);
 
