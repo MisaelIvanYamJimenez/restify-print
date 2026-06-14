@@ -68,6 +68,7 @@ app.whenReady().then(async () => {
   autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = true;
   autoUpdater.checkForUpdates();
+  setInterval(() => autoUpdater.checkForUpdates(), 2 * 60 * 60 * 1000);
 
   autoUpdater.on('update-available', (info) => {
     if (mainWindow) {
