@@ -8,6 +8,7 @@ const {
   getSystemPrinters,
   getSavedPrinters,
   savePrinterConfig,
+  unassignPrinter,
 } = require('./printer');
 
 let wss = null;
@@ -94,6 +95,15 @@ async function handleMessage(message, origin) {
       }
       savePrinterConfig(printerType, printerName, paperSize || 80);
       return { success: true, message: `Impresora ${printerType} asignada: ${printerName} (${paperSize || 80}mm)` };
+    }
+
+    case 'unassign_printer': {
+      const { printerType } = message;
+      if (!['cashier', 'kitchen'].includes(printerType)) {
+        throw new Error('Tipo de impresora invalido. Usa: cashier o kitchen');
+      }
+      unassignPrinter(printerType);
+      return { success: true, message: `Impresora ${printerType} desasignada` };
     }
 
     case 'print': {

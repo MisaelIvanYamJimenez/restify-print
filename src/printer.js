@@ -183,6 +183,12 @@ function savePrinterConfig(type, printerName, paperSize = 80) {
   store.set('printers', printers);
 }
 
+function unassignPrinter(type) {
+  const printers = getSavedPrinters();
+  printers[type] = null;
+  store.set('printers', printers);
+}
+
 function clearPrinterConfig() {
   store.set('printers', { cashier: null, kitchen: null });
 }
@@ -469,6 +475,7 @@ async function openCashDrawer() {
 module.exports = {
   getSavedPrinters,
   savePrinterConfig,
+  unassignPrinter,
   clearPrinterConfig,
   getSystemPrinters,
   printTicket,
